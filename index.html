@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Podocheong OSINT Tool</title>
+</head>
+<body>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+    </style>
+    
+    <a>화이트햇스쿨 <a href="https://github.com/Grape-Office/Grape-Project">포도청 OSINT</a>의 웹버전입니다.</a>
+    <br />
+    <br />
+    <input placeholder="Username" id="username"></input> <button id="go" onclick="search()">Go!</button>
+
+    <br />
+    <br />
+    <a id="resultText"></a> 
+    <input type="checkbox" id="fast">Fast</input>
+    <table id="resultTable">
+        <tr>
+            <th>웹사이트</th>
+            <th>카테고리</th>
+            <th>주소</th>
+        </tr>
+    </table>
+    <!-- <button id="exportCSV()">Export as CSV</button> --> <!-- TODO -->
+    <br />
+    <br />
+
+    <a>CORS 정책으로 인하여 <mark>--disable-security</mark>의 크롬 실행 옵션, 또는 <a href="https://chromewebstore.google.com/detail/cors-unblock/lfhmikememgdcahcdlaciloancbhjino?hl=en">CORS Unblock</a>이 필요할 수 있습니다. (가급적 크롬에서 새 프로필을 만들어 사용해주세요) (현재 프록시 서버 X)</a>
+    <script>
+
+    const DATA_URL = "https://raw.githubusercontent.com/Grape-Office/Grape-Project/main/data.json";
+    var found = 0;
+    var OSINT_DATAS;
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+    fetch(DATA_URL).then(res => res.json()).then((result) => {
+        result.shift();
+
+        console.log(result)
+        OSINT_DATAS = result.filter(a => a.name != "보배드림");
+
+        updateText("총 " + result.length + " 개의 사이트를 불러왔습니다.")
+
+    });
+    
+    function updateText(content) {
+        document.getElementById("resultText").textContent = content;
+    }
+
+
+    function exportCSV() {
+        // TODO
+    }
+
+    async function search() {
+        const username = document.getElementById("username").value;
+        const fast = document.getElementById("fast").checked;
+        
+        console.log(fast)
+
+        if(username == "" || OSINT_DATAS.length == 0) return;
+
+        for (let i = 0; i < OSINT_DATAS.length; i += 20) {
+            const chunk = OSINT_DATAS.slice(i, i + 20);
+
+            await Promise.all(chunk.map(async website => {
+                var url = website.url;
+
+                if(!url.startsWith("https://")) url = "https://" + url;
+                
+                url = url.replace("{}", username);
+
+                await fetch(url).then((res) => {
+                    if(res.status === 200 && fast) {
+                        addResult(username, website, url);
+                    }
+                    return res.text();
+                }).then((text) => {
+                    if(!text.includes(website.user_not_found)) {
+                        console.log(website.name, website.user_not_found)
+                        addResult(username, website, url);
+                    }
+                }).catch(() => {}) // user not found
+            }))
+        }
+    }
+
+    function addResult(username, website, link) {
+        found++;
+
+        updateText(`총 (${found}/${OSINT_DATAS.length})개의 정보를 찾았습니다.`);
+
+        const table = document.getElementById("resultTable");
+
+        const row = table.insertRow(1);
+        const cell1 = row.insertCell(0);
+        const cell2 = row.insertCell(1);
+        const cell3 = row.insertCell(2);
+
+        cell1.innerHTML = website.name
+        cell2.innerHTML = website.category;
+        cell3.innerHTML = `<a href="#" onclick="window.open('${link}')">${link}</a>`
+
+    }
+
+
+    
+
+
+    </script>
+</body>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+</html>
