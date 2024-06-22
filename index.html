@@ -74,16 +74,19 @@
                 
                 url = url.replace("{}", username);
 
-                await fetch(url).then((res) => {
-                    if(res.status === 200 && fast) {
-                        addResult(username, website, url);
-                    }
-                    return res.text();
-                }).then((text) => {
-                    if(!text.includes(website.user_not_found)) {
-                        addResult(username, website, url);
-                    }
-                }).catch(() => {}) // user not found
+                const res = await fetch(url).catch(() => false);
+    
+                if(!res || res.status !== 200) return;
+    
+                if(fast) {
+                    addResult(username, website, url);
+                };
+    
+                const text = await res.text();
+    
+                if(!text.includes(website.user_not_found)) {
+                    addResult(username, website, url);
+                }
             }))
         }
     }
