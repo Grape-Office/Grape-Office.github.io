@@ -40,9 +40,6 @@
     var found = 0;
     var OSINT_DATAS;
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000);
-
     fetch(DATA_URL).then(res => res.json()).then((result) => {
         result.shift();
         
