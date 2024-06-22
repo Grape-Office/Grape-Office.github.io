@@ -79,7 +79,7 @@
                 if(!res || res.status !== 200) return;
     
                 if(fast) {
-                    addResult(username, website, url);
+                    return addResult(username, website, url);
                 };
     
                 const text = await res.text();
