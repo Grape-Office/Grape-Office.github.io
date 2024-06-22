@@ -36,14 +36,14 @@
     <a>CORS 정책으로 인하여 <mark>--disable-security</mark>의 크롬 실행 옵션, 또는 <a href="https://chromewebstore.google.com/detail/cors-unblock/lfhmikememgdcahcdlaciloancbhjino?hl=en">CORS Unblock</a>이 필요할 수 있습니다. (가급적 크롬에서 새 프로필을 만들어 사용해주세요) (현재 프록시 서버 X)</a>
     <script>
 
-    const DATA_URL = "https://raw.githubusercontent.com/Grape-Office/Grape-Project/main/data.json";
+    const DATA_URL = "https://raw.githubusercontent.com/Grape-Office/Grape-data/main/data.json";
     var found = 0;
     var OSINT_DATAS;
 
     fetch(DATA_URL).then(res => res.json()).then((result) => {
         result.shift();
         
-        OSINT_DATAS = result.filter(a => a.name != "보배드림");
+        OSINT_DATAS = result;
 
         updateText("총 " + result.length + " 개의 사이트를 불러왔습니다.")
 
