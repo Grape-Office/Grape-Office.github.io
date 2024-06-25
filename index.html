@@ -29,7 +29,7 @@
             <th>주소</th>
         </tr>
     </table>
-    <!-- <button id="exportCSV()">Export as CSV</button> --> <!-- TODO -->
+    <button onclick="exportCSV()">Export as CSV</button> 
     <br />
     <br />
 
@@ -37,7 +37,7 @@
     <script>
 
     const DATA_URL = "https://raw.githubusercontent.com/Grape-Office/Grape-data/main/data.json";
-    var found = 0;
+    var found = [];
     var OSINT_DATAS;
 
     fetch(DATA_URL).then(res => res.json()).then((result) => {
@@ -55,8 +55,32 @@
 
 
     function exportCSV() {
-        // TODO
+        if(found.length == 0) return;
+
+        var username = document.getElementById("username").value;
+        var csv = "";
+        
+        csv += Object.keys(found[0]).join(",") + "\n";
+
+        found.forEach((v) => {
+            csv += Object.values(v).map(a => a.replace(/,/g, '|')).join(",") + "\n";
+        });
+
+        download("result-" + username + ".csv", csv)
     }
+
+    function download(filename, text) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+    } // https://stackoverflow.com/questions/3665115/how-to-create-a-file-in-memory-for-user-to-download-but-not-through-server
 
     async function search() {
         const username = document.getElementById("username").value;
@@ -92,9 +116,13 @@
     }
 
     function addResult(username, website, link) {
-        found++;
+        found.push({
+            "website": website.name,
+            "category": website.category,
+            "link": link
+        });
 
-        updateText(`총 (${found}/${OSINT_DATAS.length})개의 정보를 찾았습니다.`);
+        updateText(`총 (${found.length}/${OSINT_DATAS.length})개의 정보를 찾았습니다.`);
 
         const table = document.getElementById("resultTable");
 
