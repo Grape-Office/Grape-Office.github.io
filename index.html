@@ -45,8 +45,7 @@
         
         OSINT_DATAS = result;
 
-        updateText("총 " + result.length + " 개의 사이트를 불러왔습니다.")
-
+        updateText("총 " + result.length + " 개의 사이트를 불러왔습니다.");
     });
     
     function updateText(content) {
@@ -87,6 +86,15 @@
         const fast = document.getElementById("fast").checked;
 
         if(username == "" || OSINT_DATAS.length == 0) return;
+
+        if(found.length !== 0 && confirm("현재 검색된 결과를 삭제하시겠습니까?")) {
+            const table = document.getElementById("resultTable");
+            for(var i = 0; i < found.length; i++) table.deleteRow(1);
+
+            found.length = 0;
+
+            updateText(`총 (0/${OSINT_DATAS.length})개의 정보를 찾았습니다.`);
+        }
 
         for (let i = 0; i < OSINT_DATAS.length; i += 20) {
             const chunk = OSINT_DATAS.slice(i, i + 20);
@@ -136,11 +144,6 @@
         cell3.innerHTML = `<a href="#" onclick="window.open('${link}')">${link}</a>`
 
     }
-
-
-    
-
-
     </script>
 </body>
 </html>
